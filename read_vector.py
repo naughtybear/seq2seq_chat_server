@@ -1,14 +1,14 @@
 """
-读取一个文本格式的，保存预训练好的embedding的文件
+讀取一個.vec檔， .vec檔是個已經訓練好的embedding文件
 
-wiki.zh.vec
+預設使用的檔案: tw_chinese.vec
 
-它的第一行会被忽略
-第二行开始，每行是 词 + 空格 + 词向量维度0 + 空格 + 词向量维度1 + ...
+它的第一行會被忽略
+第二行開始，每行是 詞 + 空格 + 詞向量维度0 + 空格 + 詞向量维度1 + ...
 
 参考fasttext的文本格式
 
-https://github.com/facebookresearch/fastText/blob/master/pretrained-vectors.md
+https://github.com/facebookresearch/fastText/blob/master/docs/pretrained-vectors.md
 """
 
 import pickle
@@ -16,9 +16,9 @@ import numpy as np
 from tqdm import tqdm
 
 
-def read_vector(path='tw_chinese.vec', output_path='word_vec.pkl'):
+def read_vector(path='./data/tw_chinese.vec', output_path='./pickle/word_vec.pkl'):
     """
-    读取文本文件 path 中的数据，并且生成一个 dict 写入到 output_path
+    讀取 path中的 .vec檔，並將其整理成一個 dict並寫入到 output_path中，方便之後模型與資料前處理使用
 
     格式：
     word_vec = {
@@ -42,16 +42,17 @@ def read_vector(path='tw_chinese.vec', output_path='word_vec.pkl'):
             if dim is None:
                 dim = vec.shape
 
-    # PAD_TAG = '<pad>'
-    # UNK_TAG = '<unk>'
-    # START_TAG = '<s>'
-    # END_TAG = '</s>'
-
     np.random.seed(0)
-    word_vec['<pad>'] = np.random.random(size=(300,)) - 0.5
-    word_vec['<s>'] = np.random.random(size=(300,)) - 0.5
-    word_vec['<unk>'] = np.random.random(size=(300,)) - 0.5
-    word_vec['allkindofmeal'] = np.random.random(size=(300,)) - 0.5
+    # PADDING_TAG
+    word_vec['<pad>'] = np.random.random_sample(size=(300,)) - 0.5
+    # START_TAG
+    word_vec['<s>'] = np.random.random_sample(size=(300,)) - 0.5
+    # END_TAG
+    word_vec['</s>'] = np.random.random_sample(size=(300,)) - 0.5
+    # UNKNOWN_TAG
+    word_vec['<unk>'] = np.random.random_sample(size=(300,)) - 0.5
+    # MEAL_TAG
+    word_vec['allkindofmeal'] = np.random.random_sample(size=(300,)) - 0.5
 
     pickle.dump(word_vec, open(output_path, 'wb'))
 

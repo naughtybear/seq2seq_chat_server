@@ -11,11 +11,6 @@ from tqdm import tqdm
 
 
 sys.path.append('..')
-ROOTDIR = os.path.join(os.path.dirname(__file__), os.pardir)
-sys.path = [os.path.join(ROOTDIR, "lib")] + sys.path
-
-# Set your own model path
-MODELDIR = os.path.join(ROOTDIR, "./ltp_data/")
 
 def make_split(line):
     """构造合并两个句子之间的符号
@@ -47,13 +42,6 @@ def _ishan(text):
     # sample: ishan('一') == True, ishan('我&&你') == False
     return all('\u4e00' <= char <= '\u9fff' for char in text)
 
-def put_into_dict(line):
-    """額外建立字典"""
-    out = open('ltpdict.txt', 'a')
-    for word in line:
-        if _ishan(word) and word not in open('ltpdict.txt', 'r').read():
-            out.write(word + '\n')
-
 
 def main(limit=20, x_limit=3, y_limit=6):
     """执行程序
@@ -61,33 +49,24 @@ def main(limit=20, x_limit=3, y_limit=6):
         limit: 只输出句子长度小于limit的句子
     """
     from word_sequence import WordSequence
-    from pyltp import Segmentor
     print('load pretrained vec')
-    word_vec = pickle.load(open('word_vec.pkl', 'rb'))
+    word_vec = pickle.load(open('./pickle/word_vec.pkl', 'rb'))
 
     print('extract lines')
-    fp = open('replaced_data.txt', 'r', errors='ignore')
+    fp = open('./data/replaced_data.txt', 'r', errors='ignore')
     # last_line = None
     groups = []
     group = []
-    segmentor = Segmentor()
-    segmentor.load('./cws.model')
     for line in tqdm(fp):
         if line.startswith('M '):
             line = line.replace('\n', '')
-            #print(line)
             if '/' in line:
                 line = line[2:].split('/')
             else:
                 line = line[2:]
-            #line = line[:-1]
-            #print(line)
-            #wait = input("PRESS ENTER TO CONTINUE.")
+
             outline = jieba.lcut(regular(''.join(line)))
-            #words = segmentor.segment(regular(''.join(line)))
-            #words = list(words)
-            # print(' '.join(words))
-            # put_into_dict(words)
+
             group.append(outline)
         else: # if line.startswith('E'):
             last_line = None
@@ -102,34 +81,17 @@ def main(limit=20, x_limit=3, y_limit=6):
     y_data = []
     for group in tqdm(groups):
         for i, line in enumerate(group):
-            """ last_line = None
-            if i > 0:
-                last_line = group[i - 1]
-                if not good_line(last_line):
-                    last_line = None """
             next_line = None
             if i + 1 >= len(group):
                 continue
             if i % 2 == 0:
                 next_line = group[i + 1]
-                """ if not good_line(next_line):
-                    next_line = None """
-            """ next_next_line = None
-            if i < len(group) - 2:
-                next_next_line = group[i + 2]
-                if not good_line(next_next_line):
-                    next_next_line = None """
+
 
             if next_line:
                 x_data.append(line)
                 y_data.append(next_line)
-            # if last_line and next_line:
-            #     x_data.append(last_line + make_split(last_line) + line)
-            #     y_data.append(next_line)
-            # if next_line and next_next_line:
-            #     x_data.append(line)
-            #     y_data.append(next_line + make_split(next_line) \
-            #         + next_next_line)
+
     x_f = open('x_data.txt', 'w')
     y_f = open('y_data.txt', 'w')
     for i in range(len(x_data)-1):
@@ -161,14 +123,6 @@ def main(limit=20, x_limit=3, y_limit=6):
 
     train_data = x_data + y_data
 
-    # good_train_data = []
-    # for line in tqdm(train_data):
-    #     good_train_data.append([
-    #         x for x in line
-    #         if x in word_vec
-    #     ])
-    # train_data = good_train_data
-
     print('fit word_sequence')
 
     ws_input = WordSequence()
@@ -179,7 +133,7 @@ def main(limit=20, x_limit=3, y_limit=6):
 
     pickle.dump(
         (x_data, y_data, ws_input),
-        open('chatbot.pkl', 'wb')
+        open('./pickle/chatbot.pkl', 'wb')
     )
 
     print('make embedding vecs')
@@ -191,13 +145,13 @@ def main(limit=20, x_limit=3, y_limit=6):
         if word in word_vec:
             emb[ind] = word_vec[word]
         else:
-            emb[ind] = np.random.random(size=(300,)) - 0.5
+            emb[ind] = np.random.random_sample(size=(300,)) - 0.5
 
     print('dump emb')
 
     pickle.dump(
         emb,
-        open('emb.pkl', 'wb')
+        open('./pickle/emb.pkl', 'wb')
     )
 
     print('done')
