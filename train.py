@@ -20,7 +20,7 @@ def test(bidirectional, cell_type, depth,
 
     from sequence_to_sequence import SequenceToSequence
     from data_utils import batch_flow_bucket as batch_flow
-    from word_sequence import WordSequence # pylint: disable=unused-variable
+    from word_sequence import WordSequence  # pylint: disable=unused-variable
     from threadedgenerator import ThreadedGenerator
 
     emb = pickle.load(open('emb.pkl', 'rb'))

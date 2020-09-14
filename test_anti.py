@@ -18,14 +18,14 @@ sys.path.append('..')
 
 
 def test(bidirectional, cell_type, depth,
-         attention_type, use_residual, use_dropout, time_major, hidden_units):
+         attention_type, use_residual, use_dropout, time_major, hidden_units, anti):
     """测试不同参数在生成的假数据上的运行结果"""
 
     from sequence_to_sequence import SequenceToSequence
     from data_utils import batch_flow
     from word_sequence import WordSequence  # pylint: disable=unused-variable
 
-    x_data, _, ws = pickle.load(open('chatbot.pkl', 'rb'))
+    x_data, _, ws = pickle.load(open('./pickle/chatbot.pkl', 'rb'))
     '''
     for x in x_data[:5]:
         print(' '.join(x))
@@ -36,8 +36,10 @@ def test(bidirectional, cell_type, depth,
         log_device_placement=False
     )
 
-    # save_path = '/tmp/s2ss_chatbot.ckpt'
-    save_path = './s2ss_chatbot_anti.ckpt'
+    if anti is False:
+        save_path = './pickle/s2ss_chatbot.ckpt'
+    else:
+        save_path = './pickle/s2ss_chatbot_anti.ckpt'
 
     # 测试部分
     tf.reset_default_graph()
@@ -122,7 +124,6 @@ def test(bidirectional, cell_type, depth,
 
 
 def main():
-    """入口程序，开始测试不同参数组合"""
     random.seed(0)
     np.random.seed(0)
     tf.set_random_seed(0)
@@ -134,7 +135,8 @@ def main():
         use_residual=True,
         use_dropout=True,
         time_major=False,
-        hidden_units=256
+        hidden_units=256,
+        anti = True
     )
 
 

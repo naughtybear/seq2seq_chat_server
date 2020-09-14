@@ -14,22 +14,21 @@ from tqdm import tqdm
 sys.path.append('..')
 
 
-def test(bidirectional, cell_type, depth,
-         attention_type, use_residual, use_dropout, time_major, hidden_units):
-    """测试不同参数在生成的假数据上的运行结果"""
+def train(bidirectional, cell_type, depth,
+          attention_type, use_residual, use_dropout, time_major, hidden_units, anti):
 
     from sequence_to_sequence import SequenceToSequence
     from data_utils import batch_flow_bucket as batch_flow
     from word_sequence import WordSequence  # pylint: disable=unused-variable
     from threadedgenerator import ThreadedGenerator
 
-    emb = pickle.load(open('emb.pkl', 'rb'))
+    emb = pickle.load(open('./pickle/emb.pkl', 'rb'))
 
     x_data, y_data, ws = pickle.load(
-        open('chatbot.pkl', 'rb'))
+        open('./pickle/chatbot.pkl', 'rb'))
 
-    # 训练部分
-    n_epoch = 60
+    # 訓練部分
+    n_epoch = 20
     batch_size = 16
     # x_data, y_data = shuffle(x_data, y_data, random_state=0)
     # x_data = x_data[:100000]
@@ -42,7 +41,10 @@ def test(bidirectional, cell_type, depth,
         log_device_placement=False
     )
 
-    save_path = './s2ss_chatbot_anti.ckpt'
+    if anti:
+        save_path = './pickle/s2ss_chatbot_anti.ckpt'
+    else:
+        save_path = './pickle/s2ss_chatbot.ckpt'
 
     tf.reset_default_graph()
     with tf.Graph().as_default():
@@ -73,7 +75,7 @@ def test(bidirectional, cell_type, depth,
             init = tf.global_variables_initializer()
             sess.run(init)
 
-            # 加载训练好的embedding
+            # 加載訓練好的embedding
             model.feed_embedding(sess, encoder=emb)
 
             # print(sess.run(model.input_layer.kernel))
@@ -95,15 +97,26 @@ def test(bidirectional, cell_type, depth,
                     x, xl, y, yl = next(flow)
                     x = np.flip(x, axis=1)
 
-                    add_loss = model.train(sess,
-                                           dummy_encoder_inputs,
-                                           dummy_encoder_inputs_lengths,
-                                           y, yl, loss_only=True)
+                    if anti:
+                        add_loss = model.train(sess,
+                                               dummy_encoder_inputs,
+                                               dummy_encoder_inputs_lengths,
+                                               y, yl, loss_only=True)
 
-                    add_loss *= -0.5
-                    # print(x, y)
-                    cost, lr = model.train(sess, x, xl, y, yl,
-                                           return_lr=True, add_loss=add_loss)
+                        add_loss *= -0.5
+                        # print(x, y)
+                        cost, lr = model.train(sess, x, xl, y, yl,
+                                               return_lr=True, add_loss=add_loss)
+                    else:
+                        cost, lr = model.train(
+                            sess, x, xl, y, yl, return_lr=True)
+                        costs.append(cost)
+                        bar.set_description('epoch {} loss={:.6f} lr={:.6f}'.format(
+                            epoch,
+                            np.mean(costs),
+                            lr
+                        ))
+
                     costs.append(cost)
                     bar.set_description('epoch {} loss={:.6f} lr={:.6f}'.format(
                         epoch,
@@ -115,7 +128,7 @@ def test(bidirectional, cell_type, depth,
 
             flow.close()
 
-    # 测试部分
+    # 測試部分
     tf.reset_default_graph()
     model_pred = SequenceToSequence(
         input_vocab_size=len(ws),
@@ -183,7 +196,7 @@ def test(bidirectional, cell_type, depth,
     init = tf.global_variables_initializer()
 
     with tf.Session(config=config) as sess:
-        writer = tf.summary.FileWriter("TensorBoard/", graph = sess.graph)
+        # writer = tf.summary.FileWriter("TensorBoard/", graph=sess.graph)
         sess.run(init)
         model_pred.load(sess, save_path)
 
@@ -204,19 +217,19 @@ def test(bidirectional, cell_type, depth,
 
 
 def main():
-    """入口程序，开始测试不同参数组合"""
     random.seed(0)
     np.random.seed(0)
     tf.set_random_seed(0)
-    test(
+    train(
         bidirectional=True,
         cell_type='lstm',
-        depth=4,
+        depth=3,
         attention_type='Bahdanau',
         use_residual=True,
         use_dropout=True,
         time_major=False,
-        hidden_units=256
+        hidden_units=256,
+        anti=False
     )
 
 

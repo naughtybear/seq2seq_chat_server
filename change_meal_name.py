@@ -4,9 +4,9 @@
 
 
 def replace_meal_all():
-    with open('newData_For_AskAns.txt', 'r') as f:
-        f_meals = open('meals.txt', 'r')
-        f_out = open('replaced_data.txt', 'w')
+    with open('./data/newData_For_AskAns.txt', 'r') as f:
+        f_meals = open('./data/meals.txt', 'r')
+        f_out = open('./data/replaced_data.txt', 'w')
         line = f.readline()
         meals = f_meals.readlines()
         while line:

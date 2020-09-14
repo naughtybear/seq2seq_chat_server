@@ -1,4 +1,4 @@
-"""把 dgk_shooter_min.conv 文件格式转换为可训练格式
+"""把 word_vec.pkl轉換成可以訓練的格式
 """
 
 import re
@@ -12,8 +12,9 @@ from tqdm import tqdm
 
 sys.path.append('..')
 
+
 def make_split(line):
-    """构造合并两个句子之间的符号
+    """合併兩個句子之間的符號
     """
     if re.match(r'.*([，。…？！～\.,!?])$', ''.join(line)):
         return []
@@ -21,7 +22,7 @@ def make_split(line):
 
 
 def good_line(line):
-    """判断一个句子是否好"""
+    """判斷一個句子是否好"""
     if len(re.findall(r'[a-zA-Z0-9]', ''.join(line))) > 2:
         return False
     return True
@@ -37,6 +38,7 @@ def regular(sen):
     sen = re.sub(r'[!]{1,100}', '！', sen)
     return sen
 
+
 def _ishan(text):
     # for python 3.x
     # sample: ishan('一') == True, ishan('我&&你') == False
@@ -44,9 +46,9 @@ def _ishan(text):
 
 
 def main(limit=20, x_limit=3, y_limit=6):
-    """执行程序
+    """
     Args:
-        limit: 只输出句子长度小于limit的句子
+        limit: 只輸出長度小於limit的句子
     """
     from word_sequence import WordSequence
     print('load pretrained vec')
@@ -68,7 +70,7 @@ def main(limit=20, x_limit=3, y_limit=6):
             outline = jieba.lcut(regular(''.join(line)))
 
             group.append(outline)
-        else: # if line.startswith('E'):
+        else:  # if line.startswith('E'):
             last_line = None
             if group:
                 groups.append(group)
@@ -87,13 +89,12 @@ def main(limit=20, x_limit=3, y_limit=6):
             if i % 2 == 0:
                 next_line = group[i + 1]
 
-
             if next_line:
                 x_data.append(line)
                 y_data.append(next_line)
 
-    x_f = open('x_data.txt', 'w')
-    y_f = open('y_data.txt', 'w')
+    x_f = open('./data/x_data.txt', 'w')
+    y_f = open('./data/y_data.txt', 'w')
     for i in range(len(x_data)-1):
         # x_line = x_data[i]
         # x_line = x_line[:-2]
@@ -112,9 +113,9 @@ def main(limit=20, x_limit=3, y_limit=6):
     data = [
         (x, y)
         for x, y in data
-        if len(x) < limit \
-        and len(y) < limit \
-        and len(y) >= y_limit \
+        if len(x) < limit
+        and len(y) < limit
+        and len(y) >= y_limit
         and len(x) >= x_limit
     ]
     x_data, y_data = zip(*data)
