@@ -8,7 +8,7 @@ import numpy as np
 
 
 class WordSequence(object):
-    """一个可以把句子轉為index的class
+    """一個可以把句子轉為index的class
     """
 
     PAD_TAG = '<pad>'
