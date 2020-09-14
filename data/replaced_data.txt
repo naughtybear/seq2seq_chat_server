@@ -2231,7 +2231,7 @@ M 謝謝你。 零。
 M 來點甜點，allkindofmeal或其他什麼，怎樣？ 四。
 M 你們有什麼allkindofmeal呢？ 四。
 M 我們有allkindofmeal，allkindofmeal以及allkindofmeal。 零。
-M 啊，是的，我就要allkindofmeal，我喜歡日本綠allkindofmeal。 零。
+M 啊，是的，我就要allkindofmeal，我喜歡日本allkindofmeal。 零。
 M 啊，可以，我立刻就拿，先生。 零。
 M 抱歉，讓你久等了，請你慢用吧。 零。
 M 謝謝你。 一。
