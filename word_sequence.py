@@ -1,7 +1,5 @@
 """
-WordSequence类
-
-维护一个字典，把一个list（或者字符串）编码化，或者反向恢复
+利用字典，將向量轉成字或是將字轉成向量
 
 """
 
@@ -10,7 +8,7 @@ import numpy as np
 
 
 class WordSequence(object):
-    """一个可以把句子编码化（index）的类
+    """一个可以把句子轉為index的class
     """
 
     PAD_TAG = '<pad>'
@@ -36,7 +34,7 @@ class WordSequence(object):
 
 
     def to_index(self, word):
-        """把一个单字转换为index
+        """把一個單字轉換為index
         """
         assert self.fited, 'WordSequence 尚未 fit'
         if word in self.dict:
@@ -45,7 +43,7 @@ class WordSequence(object):
 
 
     def to_word(self, index):
-        """把一个index转换为单字
+        """把一個index轉會為單字
         """
         assert self.fited, 'WordSequence 尚未 fit'
         for k, v in self.dict.items():
@@ -55,23 +53,23 @@ class WordSequence(object):
 
 
     def size(self):
-        """返回字典大小
+        """回傳字典大小
         """
         assert self.fited, 'WordSequence 尚未 fit'
         return len(self.dict) + 1
 
     def __len__(self):
-        """返回字典大小
+        """回傳字典大小
         """
         return self.size()
 
 
     def fit(self, sentences, min_count=1, max_count=None, max_features=None):
-        """训练 WordSequence
-        Args:
-            min_count 最小出现次数
-            max_count 最大出现次数
-            max_features 最大特征数
+        """訓練 WordSequence
+        input:
+            min_count 最小出現次數
+            max_count 最大出現次數
+            max_features 最大特征數
 
         ws = WordSequence()
         ws.fit([['hello', 'world']])
@@ -114,9 +112,9 @@ class WordSequence(object):
 
     def transform(self,
                   sentence, max_len=None):
-        """把句子转换为向量
-        例如输入 ['a', 'b', 'c']
-        输出 [1, 2, 3] 这个数字是字典里的编号，顺序没有意义
+        """把句子轉換為向量
+        例如輸入 ['a', 'b', 'c']
+        輸出 [1, 2, 3] 這個數字是字典裡的編號，顺序没有意義
         """
         assert self.fited, 'WordSequence 尚未 fit'
 
@@ -141,7 +139,7 @@ class WordSequence(object):
     def inverse_transform(self, indices,
                           ignore_pad=False, ignore_unk=False,
                           ignore_start=False, ignore_end=False):
-        """把向量转换为句子，和上面的相反
+        """把向量轉換為句子，和上面的相反
         """
         ret = []
         for i in indices:
@@ -159,19 +157,19 @@ class WordSequence(object):
         return ret
     
     def printdict(self):
-        f = open('dict.txt','w')
-        for key,values in self.dict.items():
+        f = open('./data/dict.txt','w')
+        for key, _ in self.dict.items():
             f.write(key)
             f.write('\n')
 
 
 def test():
-    """测试
+    """測試
     """
     ws = WordSequence()
     ws.fit([
-        ['第', '一', '句', '话'],
-        ['第', '二', '句', '话']
+        ['第', '一', '句', '話'],
+        ['第', '二', '句', '話']
     ])
 
     indice = ws.transform(['第', '三'])
